@@ -21,6 +21,9 @@ function init() {
  * @returns {Array<Object>} An array of recipes found in localStorage
  */
 function getRecipesFromStorage() {
+  if(null === localStorage.getItem('recipes')){
+    return null;
+  }
   let recipes =JSON.parse(localStorage.getItem('recipes'));
   return recipes;
   // A9. TODO - Complete the functionality as described in this function
@@ -36,6 +39,9 @@ function getRecipesFromStorage() {
  * @param {Array<Object>} recipes An array of recipes
  */
 function addRecipesToDocument(recipes) {
+  if (recipes === null){
+    return;
+  }
   let main = document.querySelector('main');
   for (let recipe = 0; recipe < recipes.length; recipe++){
     let recipeElem = document.createElement("recipe-card");
@@ -70,7 +76,9 @@ function initFormHandler() {
   let form = document.querySelector("#new-recipe");
 
 
-  form.addEventListener('submit', ()=>{
+  form.addEventListener('submit', function(event){
+    console.log(event.cancelable);
+    event.preventDefault();
     const formData = new FormData(form);
     console.log(formData.entries['imgSrc']);
     let recipeObj = {};
@@ -81,13 +89,20 @@ function initFormHandler() {
     recipeElem.data= recipeObj;
     let main = document.querySelector('main');
     main.appendChild(recipeElem);
-    let currStored = JSON.parse(localStorage.getItem('recipes'));
-    currStored.push(recipeObj);
+    let currStored;
+    if(localStorage.getItem('recipes')=== null){
+      currStored = [recipeObj];
+    }else { 
+      currStored = JSON.parse(localStorage.getItem('recipes'));
+      currStored.push(recipeObj);
+    }
+    console.log("reached");
     localStorage.setItem('recipes', JSON.stringify(currStored));
   });
 
   let clearButton = document.querySelector(".danger");
-  clearButton.addEventListener("click",()=>{
+  clearButton.addEventListener("click",(event)=>{
+    event.preventDefault()
     localStorage.clear();
     let main = document.querySelector('main');
     main.replaceChildren();
